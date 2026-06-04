@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="5" />
+  <title>Sentinel — Autonomous Remediation</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 0;
+           background: #0d1117; color: #e6edf3; }
+    header { padding: 20px 28px; border-bottom: 1px solid #21262d; }
+    h1 { margin: 0; font-size: 20px; }
+    .sub { color: #8b949e; font-size: 13px; margin-top: 4px; }
+    .cards { display: flex; gap: 16px; flex-wrap: wrap; padding: 24px 28px; }
+    .card { background: #161b22; border: 1px solid #21262d; border-radius: 10px;
+            padding: 16px 20px; min-width: 150px; }
+    .card .label { color: #8b949e; font-size: 12px; text-transform: uppercase;
+                   letter-spacing: .04em; }
+    .card .value { font-size: 28px; font-weight: 600; margin-top: 6px; }
+    .ok { color: #3fb950; } .bad { color: #f85149; } .warn { color: #d29922; }
+    table { width: calc(100% - 56px); margin: 0 28px 32px; border-collapse: collapse;
+            font-size: 13px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #21262d; }
+    th { color: #8b949e; font-weight: 500; }
+    .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+    .s-completed { background: #112e1c; color: #3fb950; }
+    .s-running   { background: #0d2538; color: #58a6ff; }
+    .s-pending   { background: #2d2a12; color: #d29922; }
+    .s-failed    { background: #341111; color: #f85149; }
+    .s-needs_input { background: #2d1f3a; color: #bc8cff; }
+    a { color: #58a6ff; text-decoration: none; }
+    .sev-critical { color: #f85149; font-weight: 600; }
+    .sev-high { color: #db6d28; }
+    .sev-medium { color: #d29922; }
+    .sev-low { color: #8b949e; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ Sentinel — Autonomous Remediation Pipeline</h1>
+    <div class="sub">Devin-powered · repo <code>{{ repo }}</code> · mode
+      <code>{{ mode }}</code> · auto-refreshes every 5s</div>
+  </header>
+
+  <div class="cards">
+    <div class="card"><div class="label">Total tasks</div>
+      <div class="value">{{ m.total_tasks }}</div></div>
+    <div class="card"><div class="label">In flight</div>
+      <div class="value warn">{{ m.active }}</div></div>
+    <div class="card"><div class="label">PRs opened</div>
+      <div class="value ok">{{ m.completed }}</div></div>
+    <div class="card"><div class="label">Needs human</div>
+      <div class="value warn">{{ m.needs_input }}</div></div>
+    <div class="card"><div class="label">Failed</div>
+      <div class="value bad">{{ m.failed }}</div></div>
+    <div class="card"><div class="label">Success rate</div>
+      <div class="value">{{ (m.success_rate * 100) | round(0) | int }}%</div></div>
+    <div class="card"><div class="label">MTTR</div>
+      <div class="value">{{ m.mttr_seconds | round(0) | int }}s</div></div>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>Issue</th><th>Title</th><th>Sev</th><th>Status</th>
+      <th>Devin session</th><th>Pull request</th><th>Polls</th>
+    </tr></thead>
+    <tbody>
+    {% for t in tasks %}
+      <tr>
+        <td>#{{ t.issue_number }}</td>
+        <td>{{ t.issue_title }}</td>
+        <td class="sev-{{ t.severity }}">{{ t.severity }}</td>
+        <td><span class="pill s-{{ t.status }}">{{ t.status }}</span></td>
+        <td>{% if t.session_url %}<a href="{{ t.session_url }}">open</a>{% else %}—{% endif %}</td>
+        <td>{% if t.pull_request_url %}<a href="{{ t.pull_request_url }}">PR</a>{% else %}—{% endif %}</td>
+        <td>{{ t.poll_count }}</td>
+      </tr>
+    {% endfor %}
+    {% if not tasks %}
+      <tr><td colspan="7" style="color:#8b949e">No tasks yet — trigger a scan via
+        <code>POST /scan</code> or <code>make demo</code>.</td></tr>
+    {% endif %}
+    </tbody>
+  </table>
+</body>
+</html>

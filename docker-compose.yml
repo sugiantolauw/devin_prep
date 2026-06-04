@@ -1,0 +1,24 @@
+services:
+  sentinel:
+    build: .
+    image: sentinel:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # Defaults to mock mode so `docker compose up` works with zero config.
+      SENTINEL_MODE: ${SENTINEL_MODE:-mock}
+      DEVIN_API_KEY: ${DEVIN_API_KEY:-}
+      DEVIN_BASE_URL: ${DEVIN_BASE_URL:-https://api.devin.ai/v1}
+      DEVIN_MAX_ACU_LIMIT: ${DEVIN_MAX_ACU_LIMIT:-10}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      TARGET_REPO: ${TARGET_REPO:-your-org/superset}
+      TRIGGER_LABEL: ${TRIGGER_LABEL:-devin-fix}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      SENTINEL_DB_PATH: /data/sentinel.db
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-10}
+      MOCK_POLLS_TO_FINISH: ${MOCK_POLLS_TO_FINISH:-3}
+    volumes:
+      - sentinel_data:/data
+
+volumes:
+  sentinel_data:

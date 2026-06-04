@@ -1,0 +1,38 @@
+[
+  {
+    "id": "SNTL-001",
+    "title": "Upgrade vulnerable `cryptography` (GHSA-style RCE in OpenSSL bindings)",
+    "severity": "critical",
+    "category": "vulnerability",
+    "package": "cryptography",
+    "cve": "GHSA-xxxx-cryptography",
+    "body": "The pinned `cryptography` version is affected by a known advisory in its bundled OpenSSL. Upgrade to the latest patched release and confirm no API usage broke (Fernet, x509 loaders). This is a transitive risk surfaced by the dependency scanner."
+  },
+  {
+    "id": "SNTL-002",
+    "title": "Upgrade `requests` to patch CVE in connection pooling",
+    "severity": "high",
+    "category": "dependency",
+    "package": "requests",
+    "cve": "GHSA-xxxx-requests",
+    "body": "Dependency scan flags the pinned `requests` version for a security advisory. Bump to the nearest patched version and run the modules that perform outbound HTTP."
+  },
+  {
+    "id": "SNTL-003",
+    "title": "Replace deprecated `datetime.utcnow()` usages (code quality)",
+    "severity": "low",
+    "category": "code-quality",
+    "package": null,
+    "cve": null,
+    "body": "Several modules call the deprecated naive `datetime.utcnow()`. Replace with timezone-aware `datetime.now(timezone.utc)` to avoid silent UTC bugs. Scoped, mechanical, well-suited to an autonomous fix with test coverage."
+  },
+  {
+    "id": "SNTL-004",
+    "title": "Pin and upgrade `Pillow` to address image-parsing advisory",
+    "severity": "high",
+    "category": "vulnerability",
+    "package": "Pillow",
+    "cve": "GHSA-xxxx-pillow",
+    "body": "Image-handling dependency `Pillow` is below the patched version for a known advisory affecting crafted image parsing. Upgrade and verify thumbnail/screenshot code paths still pass their tests."
+  }
+]
