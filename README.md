@@ -1,5 +1,7 @@
 # 🛡️ Sentinel — Event-Driven Autonomous Remediation, powered by Devin
 
+![Sentinel dashboard](docs/dashboard_screenshot.png)
+
 Sentinel closes the loop on security & dependency hygiene **without a human in
 the critical path**:
 
