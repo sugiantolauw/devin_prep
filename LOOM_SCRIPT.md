@@ -44,9 +44,10 @@ takes. Have two windows ready: **terminal** (running `make serve`) and
 > still have to *fix and review*. Or a human: expensive and slow. Devin sits in
 > the gap neither fills — it reproduces the issue, writes the fix, runs the
 > repo's tests, reads the failures, fixes the breakage, and hands back a
-> reviewable PR. And when it's genuinely ambiguous — a major-version bump with
-> blast radius — it doesn't guess; it escalates with its reasoning." *(Point to
-> the `needs_human` row on the dashboard.)*
+> reviewable PR. And when it's genuinely ambiguous — like the SQLAlchemy 1.4→2.0
+> migration on the board, a major bump with blast radius across the whole data
+> layer — it doesn't guess; it stops and escalates with a written migration
+> plan." *(Point to the `needs_input` row on the dashboard.)*
 > "No other primitive does autonomous, test-validated remediation today."
 
 ### 3:45–5:00 · WHEN — next steps in a real engagement

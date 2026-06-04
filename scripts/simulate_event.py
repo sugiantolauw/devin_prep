@@ -21,14 +21,14 @@ payload = {
     "action": "labeled",
     "issue": {
         "number": int(os.environ.get("ISSUE_NUMBER", "424")),
-        "title": "Upgrade vulnerable `cryptography` dependency",
-        "body": "Dependency scanner flagged a critical advisory in the pinned "
-                "`cryptography` version. Upgrade to the patched release and "
-                "verify the Fernet/x509 code paths.",
+        "title": "Upgrade Flask from 2.3.3 to the supported 3.x line",
+        "body": "Dependency-currency scan: requirements/base.txt pins flask==2.3.3 "
+                "while pyproject.toml already allows Flask>=2.2.5,<4.0.0. Upgrade "
+                "to the latest 3.x, resolve API changes, and run the tests.",
         "labels": [
             {"name": TRIGGER_LABEL},
-            {"name": "severity:critical"},
-            {"name": "category:vulnerability"},
+            {"name": "severity:high"},
+            {"name": "category:dependency"},
         ],
     },
 }

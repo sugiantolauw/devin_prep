@@ -211,9 +211,10 @@ class MockDevinClient:
                 "outcome": "fixed",
                 "pull_request_url":
                     f"https://github.com/your-org/superset/pull/{9000 + n}",
-                "summary": "Upgraded the affected dependency to a patched "
-                           "version and adapted the two call sites that changed.",
-                "files_changed": ["requirements/base.txt", "superset/utils/core.py"],
+                "summary": "Bumped the pinned dependency to the target version "
+                           "within the allowed constraint and adapted the call "
+                           "sites affected by the API change.",
+                "files_changed": ["requirements/base.txt", "pyproject.toml"],
                 "verification": "Ran the touched unit tests and pre-commit hooks; "
                                 "all green.",
             },
