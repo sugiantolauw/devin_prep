@@ -17,6 +17,7 @@ import hashlib
 import hmac
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -81,8 +82,8 @@ def build_app() -> FastAPI:
     @app.post("/webhooks/github")
     async def github_webhook(
         request: Request,
-        x_hub_signature_256: str | None = Header(default=None),
-        x_github_event: str | None = Header(default=None),
+        x_hub_signature_256: Optional[str] = Header(default=None),
+        x_github_event: Optional[str] = Header(default=None),
     ):
         raw = await request.body()
         if settings.github_webhook_secret:
@@ -157,7 +158,7 @@ def build_app() -> FastAPI:
     return app
 
 
-def _verify_signature(raw: bytes, signature: str | None, secret: str) -> None:
+def _verify_signature(raw: bytes, signature: Optional[str], secret: str) -> None:
     if not signature:
         raise HTTPException(status_code=401, detail="missing signature")
     digest = hmac.new(secret.encode(), raw, hashlib.sha256).hexdigest()
