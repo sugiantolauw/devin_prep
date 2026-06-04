@@ -138,6 +138,16 @@ class MockDevinClient:
         self._sessions: dict[str, dict] = {}
         self._counter = 0
 
+    @staticmethod
+    def _needs_human(session_id: str) -> bool:
+        """Outcome is a pure function of the session number, so the simulation
+        is stable across process restarts (a known session shows the same final
+        state whether or not this process created it)."""
+        try:
+            return int(session_id.split("-")[1]) % 4 == 0
+        except (IndexError, ValueError):
+            return False
+
     async def create_session(
         self, prompt: str, *, title: str, tags: list[str],
         structured_output_schema: Optional[dict] = None,
@@ -146,12 +156,7 @@ class MockDevinClient:
         await asyncio.sleep(0)  # behave like a coroutine that yields
         self._counter += 1
         session_id = f"mock-{self._counter:04d}"
-        self._sessions[session_id] = {
-            "title": title,
-            "polls": 0,
-            # Roughly 1 in 4 sessions needs a human, to exercise that path.
-            "force_needs_human": self._counter % 4 == 0,
-        }
+        self._sessions[session_id] = {"title": title, "polls": 0}
         log.info("created mock devin session", extra={"ctx_session_id": session_id})
         return {
             "session_id": session_id,
@@ -163,6 +168,12 @@ class MockDevinClient:
         await asyncio.sleep(0)
         state = self._sessions.get(session_id)
         if state is None:
+            # Session created before this process started (e.g. the DB was
+            # populated by an earlier `make demo`/`make serve`). Real Devin
+            # sessions live server-side and survive restarts; the simulator
+            # reconstructs the same stable terminal state instead of erroring.
+            if session_id.startswith("mock-"):
+                return self._terminal(session_id)
             return DevinSession({"session_id": session_id, "status": "error",
                                  "status_enum": "error"})
         state["polls"] += 1
@@ -172,10 +183,11 @@ class MockDevinClient:
                 "status": "running",
                 "status_enum": "working",
             })
+        return self._terminal(session_id)
 
-        # Terminal step.
+    def _terminal(self, session_id: str) -> DevinSession:
         n = int(session_id.split("-")[1])
-        if state["force_needs_human"]:
+        if self._needs_human(session_id):
             return DevinSession({
                 "session_id": session_id,
                 "status": "blocked",
