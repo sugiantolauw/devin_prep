@@ -21,7 +21,12 @@ log = get_logger("sentinel.devin")
 # Devin's granular session states that mean "no longer making progress on its
 # own". `blocked`/`finished` are success-ish (Devin is done or waiting for us);
 # the suspended reasons are failures we surface to the dashboard.
-TERMINAL_STATUS_ENUMS = {"finished", "blocked", "expired", "stopped"}
+TERMINAL_STATUS_ENUMS = {
+    # v1 wording
+    "finished", "blocked", "expired", "stopped",
+    # v3 wording
+    "completed", "suspended", "exited",
+}
 FAILURE_STATUS_ENUMS = {
     "usage_limit_exceeded", "out_of_credits", "out_of_quota",
     "no_quota_allocation", "payment_declined", "org_usage_limit_exceeded",
@@ -227,7 +232,99 @@ class MockDevinClient:
         return None
 
 
+class DevinV3Client:
+    """Devin enterprise v3 (organization-scoped) API client.
+
+    Auth: a service-user token (``cog_`` prefix). Sessions are scoped to an
+    organization, so every path carries the org id:
+
+        POST {base}/v3/organizations/{org}/sessions          (create)
+        GET  {base}/v3beta1/organizations/{org}/sessions/{id} (status)
+
+    The v3 status payload differs from v1 — notably ``pull_requests`` is an
+    array — so :meth:`get_session` normalises it back onto the common
+    :class:`DevinSession` shape the rest of the system already understands.
+    """
+
+    def __init__(self, api_key: str, org_id: str,
+                 base_url: str = "https://api.devin.ai") -> None:
+        if not api_key:
+            raise ValueError("DEVIN_API_KEY is required in live mode")
+        if not org_id:
+            raise ValueError("DEVIN_ORG_ID is required for the v3 enterprise API")
+        self._org = org_id
+        self._base = base_url.rstrip("/")
+        # Cache whichever GET prefix works (v3 or v3beta1) after the first call.
+        self._get_prefix: Optional[str] = None
+        self._client = httpx.AsyncClient(
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            timeout=httpx.Timeout(120.0, connect=10.0),
+        )
+
+    async def create_session(
+        self, prompt: str, *, title: str, tags: list[str],
+        structured_output_schema: Optional[dict] = None,
+        max_acu_limit: Optional[int] = None,
+    ) -> dict:
+        body: dict[str, Any] = {"prompt": prompt, "title": title[:120], "tags": tags}
+        if max_acu_limit is not None:
+            body["max_acu_limit"] = max_acu_limit
+        url = f"{self._base}/v3/organizations/{self._org}/sessions"
+        resp = await self._client.post(url, json=body)
+        resp.raise_for_status()
+        data = resp.json()
+        log.info("created devin v3 session", extra={
+            "ctx_session_id": data.get("session_id")})
+        return data  # already has session_id + url
+
+    async def get_session(self, session_id: str) -> DevinSession:
+        prefixes = [self._get_prefix] if self._get_prefix else ["v3beta1", "v3"]
+        last: Optional[httpx.Response] = None
+        for prefix in prefixes:
+            url = f"{self._base}/{prefix}/organizations/{self._org}/sessions/{session_id}"
+            resp = await self._client.get(url)
+            last = resp
+            if resp.status_code == 404 and self._get_prefix is None:
+                continue  # try the other version
+            resp.raise_for_status()
+            self._get_prefix = prefix
+            return DevinSession(_normalise_v3(resp.json()))
+        if last is not None:
+            last.raise_for_status()
+        return DevinSession({"session_id": session_id, "status": "error",
+                             "status_enum": "error"})
+
+    async def aclose(self) -> None:
+        await self._client.aclose()
+
+
+def _normalise_v3(data: dict) -> dict:
+    """Map a v3 session payload onto the fields DevinSession expects.
+
+    v3 returns ``pull_requests`` (array of objects/strings); the rest of the
+    system reads a single ``pull_request.url``.
+    """
+    out = dict(data)
+    prs = data.get("pull_requests") or []
+    if prs:
+        first = prs[0]
+        if isinstance(first, str):
+            out["pull_request"] = {"url": first}
+        elif isinstance(first, dict):
+            out["pull_request"] = {"url": first.get("url") or first.get("html_url")}
+    return out
+
+
 def build_devin_client(settings) -> DevinClientProtocol:
-    if settings.is_live:
-        return DevinClient(settings.devin_api_key, settings.devin_base_url)
-    return MockDevinClient(polls_to_finish=settings.mock_polls_to_finish)
+    if not settings.is_live:
+        return MockDevinClient(polls_to_finish=settings.mock_polls_to_finish)
+    # Enterprise/service-user setups are org-scoped → use the v3 API.
+    if settings.devin_org_id:
+        base = settings.devin_base_url
+        if base.endswith("/v1"):  # strip the v1 suffix; v3 lives at the host root
+            base = base[: -len("/v1")]
+        return DevinV3Client(settings.devin_api_key, settings.devin_org_id, base)
+    return DevinClient(settings.devin_api_key, settings.devin_base_url)

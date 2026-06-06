@@ -22,6 +22,8 @@ class Settings:
     devin_api_key: str = ""
     devin_base_url: str = "https://api.devin.ai/v1"
     devin_max_acu_limit: int = 10
+    # Set for enterprise/service-user (cog_) tokens → uses the v3 org-scoped API.
+    devin_org_id: str = ""
 
     # GitHub
     github_token: str = ""
@@ -55,6 +57,7 @@ def get_settings() -> Settings:
         devin_api_key=os.environ.get("DEVIN_API_KEY", ""),
         devin_base_url=os.environ.get("DEVIN_BASE_URL", "https://api.devin.ai/v1"),
         devin_max_acu_limit=_int("DEVIN_MAX_ACU_LIMIT", 10),
+        devin_org_id=os.environ.get("DEVIN_ORG_ID", ""),
         github_token=os.environ.get("GITHUB_TOKEN", ""),
         target_repo=os.environ.get("TARGET_REPO", "your-org/superset"),
         trigger_label=os.environ.get("TRIGGER_LABEL", "devin-fix"),

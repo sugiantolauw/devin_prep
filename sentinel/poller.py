@@ -90,27 +90,34 @@ class Tracker:
             return await self._finish(task, TaskStatus.FAILED,
                                       error=f"Devin session {status_enum}")
 
+        outcome = session.structured_output.get("outcome")
+        summary = session.structured_output.get("summary")
+        pr_url = session.pull_request_url
+
+        # A pull request is the success signal — robust across the v1 and v3
+        # API shapes (v3 returns a `pull_requests` array) and independent of how
+        # Devin words its status.
+        if pr_url:
+            task.pull_request_url = pr_url
+            task.summary = summary
+            return await self._finish(task, TaskStatus.COMPLETED)
+
+        # Devin explicitly escalated to a human.
+        if outcome == "needs_human":
+            task.summary = summary
+            task.status = TaskStatus.NEEDS_INPUT
+            task.updated_at = utcnow_iso()
+            self.store.update_task(task)
+            await self.github.comment(
+                task.issue_number,
+                f"⚠️ **Sentinel** — Devin paused for human input.\n\n{summary}\n\n"
+                f"Session: {task.session_url}",
+            )
+            # Not terminal for our accounting: a human may unblock it.
+            return False
+
+        # Reached a terminal state but produced no PR — flag for investigation.
         if status_enum in TERMINAL_STATUS_ENUMS:
-            outcome = session.structured_output.get("outcome")
-            summary = session.structured_output.get("summary")
-            pr_url = session.pull_request_url
-            if outcome == "needs_human":
-                task.summary = summary
-                task.status = TaskStatus.NEEDS_INPUT
-                task.updated_at = utcnow_iso()
-                self.store.update_task(task)
-                await self.github.comment(
-                    task.issue_number,
-                    f"⚠️ **Sentinel** — Devin paused for human input.\n\n{summary}\n\n"
-                    f"Session: {task.session_url}",
-                )
-                # Not terminal for our accounting: a human may unblock it.
-                return False
-            if pr_url:
-                task.pull_request_url = pr_url
-                task.summary = summary
-                return await self._finish(task, TaskStatus.COMPLETED)
-            # Finished but no PR and not flagged: treat as failure to investigate.
             return await self._finish(
                 task, TaskStatus.FAILED,
                 error="session finished without a pull request")
