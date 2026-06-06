@@ -78,7 +78,10 @@ class DevinClient:
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
-            timeout=30.0,
+            # Generous read timeout: creating a session can take well over 30s
+            # while Devin provisions the workspace. Connect stays short so a
+            # genuinely unreachable host fails fast.
+            timeout=httpx.Timeout(120.0, connect=10.0),
         )
 
     async def create_session(
