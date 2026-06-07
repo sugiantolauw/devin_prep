@@ -1,69 +1,69 @@
-# Loom script — 5:00 hard cap
+# Loom script — simple English, ~4.5 min (5:00 hard cap)
 
-Goal: pitch Devin to a VP of Engineering + senior ICs. Show a working system,
-defend the architecture, make the "why Devin" case. Practice once, record 2–3
-takes. Have two windows ready: **terminal** (running `make serve`) and
-**browser** on `/dashboard`, plus a tab on your **Superset fork's issues/PRs**.
+Goal: pitch Devin to a VP of Engineering + senior ICs. Read it naturally; the
+`[…]` notes are screen cues, not spoken. Prepare these before recording:
 
----
+- **Terminal** running the live server (ready to show `curl .../scan` + logs)
+- **Browser tab 1:** http://localhost:8000/dashboard (already populated)
+- **Browser tab 2:** your fork's Pull requests
+- **Browser tab 3:** `ARCHITECTURE.md` (for the diagram)
 
-### 0:00–0:40 · WHAT — the problem (talk over the dashboard, empty)
-
-> "Every org running more than a handful of services drowns in dependency and
-> security alerts. Today each one either rots in a backlog or eats a senior
-> engineer's afternoon — read the advisory, bump the version, fix what breaks,
-> run the tests, open a PR. Dependabot opens the PR but leaves the *fixing* to
-> you. I built **Sentinel**: it makes that an unattended workflow, with Devin
-> doing the actual engineering."
-
-### 0:40–2:30 · HOW — live demo + architecture
-
-1. **Trigger it.** In the terminal: `curl -X POST localhost:8000/scan`
-   > "A dependency scan just filed four issues in our Superset fork and, for
-   > each one, opened a Devin session via the API. Filing the issue *is* the
-   > event."
-2. **Show the orchestrator logs** scrolling — "session created, id mock-0001…".
-   Point out the structured JSON logs.
-3. **Cut to `/dashboard`.** Tasks in flight → flipping to *completed* with PR
-   links. Call out the cards: **PRs opened, success rate, MTTR**.
-   > "This is the answer to 'how does a leader know it's working' — live."
-4. **Cut to your Superset fork** → the issues, and a Devin-opened **PR** with a
-   real diff + passing checks. *(In the live recording use a real PR; the demo's
-   mock PRs prove the wiring.)*
-5. **Walk the architecture** (open `ARCHITECTURE.md` diagram, ~30s):
-   > "Three layers — trigger, orchestrator, observability — with Devin as the
-   > remediation primitive in the middle. Key calls: a *structured-output
-   > contract* so I never scrape prose for the PR URL; *idempotency* at the
-   > Devin call and the store so a double-delivered webhook can't double-spend;
-   > and a `max_acu_limit` cost ceiling per issue. SQLite and one async poll
-   > loop — no queue, no Redis — deliberately sized to the problem."
-
-### 2:30–3:45 · WHY DEVIN — the uniquely-suited case
-
-> "Strip Devin out and you have two options. Dependabot/Renovate: opens a PR you
-> still have to *fix and review*. Or a human: expensive and slow. Devin sits in
-> the gap neither fills — it reproduces the issue, writes the fix, runs the
-> repo's tests, reads the failures, fixes the breakage, and hands back a
-> reviewable PR. And when it's genuinely ambiguous — like the SQLAlchemy 1.4→2.0
-> migration on the board, a major bump with blast radius across the whole data
-> layer — it doesn't guess; it stops and escalates with a written migration
-> plan." *(Point to the `needs_input` row on the dashboard.)*
-> "No other primitive does autonomous, test-validated remediation today."
-
-### 3:45–5:00 · WHEN — next steps in a real engagement
-
-> "To roll this out for a customer: (1) swap the demo scanner for their live
-> Dependabot alerts or SCA tool; (2) per-repo prompt and guardrail tuning;
-> (3) escalation that opens a Linear ticket on `needs_human`; (4) auto-merge
-> low-risk patch bumps when CI is green, human review for majors; (5) Postgres +
-> a dedicated worker as fan-out grows. The architecture already has the seams for
-> all of it — clients are pluggable, the prompt is one tunable surface, and every
-> session is tracked and costed."
+Pro tip: record the `curl scan` + logs live (instant, looks great), then cut to
+the already-populated dashboard — don't wait on camera for sessions to finish.
 
 ---
 
-**Timing tips:** the WHAT and the dashboard reveal are your hooks — don't rush
-them. If you're over, cut the architecture walk to the three call-outs
-(structured output, idempotency, cost ceiling). End on the business line:
-> "This turns a recurring tax on senior engineers into a dashboard a leader
-> checks once a day."
+### [0:00–0:35] WHAT — the problem  *[your face or the dashboard]*
+
+> "Hi. This is **Sentinel**. It uses Devin to fix dependency and security issues
+> automatically — with no engineer in the loop.
+>
+> Here's the problem. Big teams get a flood of dependency and security alerts
+> every week. Right now, a person has to read each one, upgrade the package, fix
+> what breaks, run the tests, and open a pull request. It's slow, and it eats
+> senior engineers' time. Dependabot opens the PR — but a human still has to do
+> the fix. Sentinel hands that whole job to Devin."
+
+### [0:35–2:10] HOW — demo + architecture  *[terminal → dashboard → fork PRs]*
+
+> "Let me show you. I run one command to scan my copy of Apache Superset."
+> *[show `curl .../scan` + the log lines]*
+>
+> "That scan creates a GitHub issue for each problem. For each issue, my code
+> calls the Devin API and starts a session. Here's the dashboard." *[/dashboard]*
+> "It shows every issue, its severity, the Devin session, and the pull request.
+> Up top: success rate, throughput, and average time to fix.
+>
+> Now, here's what Devin actually did." *[fork → Pull requests]*
+> - "First PR: it upgraded **Flask from 2.3.3 to 3.1.3**. A real code change,
+>   with the tests run.
+> - Second PR: the interesting one. The task was moving off old **SQLAlchemy 1.4
+>   to 2.0** — a risky, far-reaching change. Devin did *not* force it. It opened
+>   a PR with a step-by-step **migration plan** instead. It knew when *not* to act.
+>
+> The design is simple." *[ARCHITECTURE.md diagram]* "Three parts. A **trigger** —
+> a scan or a webhook. An **orchestrator** that turns each issue into a Devin
+> session, with a spend limit per session so costs stay safe. And an
+> **observability** layer — this dashboard, logs, and a metrics page. One small
+> service. No heavy infrastructure."
+
+### [2:10–3:20] WHY Devin  *[back to the PRs]*
+
+> "Why Devin? Without it, you have two choices. Dependabot — which opens a PR you
+> still have to fix yourself. Or a human — slow and expensive. Devin fills the
+> gap. It reads the issue, writes the fix, runs the tests, sees what breaks, and
+> fixes it — then opens a PR you can review. And when something is too risky,
+> like the SQLAlchemy upgrade, it stops and writes a plan instead of guessing.
+> Nothing else does autonomous, *tested* fixes like this today."
+
+### [3:20–4:30] WHEN — next steps  *[your face or the dashboard]*
+
+> "In a real rollout, I'd add four things. One: connect it to live alerts — like
+> Dependabot or a security scanner — instead of a manual scan. Two: tune the
+> instructions for each repository. Three: when Devin flags something for a
+> human, open a Jira or Linear ticket automatically. Four: auto-merge the small,
+> safe upgrades when tests pass, and keep humans for the big ones. The code is
+> already built for this.
+>
+> That's Sentinel. It turns a constant drain on senior engineers into a
+> dashboard a leader checks once a day. Thanks."
