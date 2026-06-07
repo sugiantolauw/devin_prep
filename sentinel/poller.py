@@ -66,6 +66,20 @@ class Tracker:
             except asyncio.TimeoutError:
                 pass
 
+    async def reconcile_all(self) -> int:
+        """Re-poll every task that has a session id, regardless of current
+        status. Use this to repair tasks recorded during downtime or under an
+        earlier (buggy) parser — e.g. a session that actually opened a PR but
+        was previously marked failed. Returns the number re-checked."""
+        checked = 0
+        for task in self.store.list_tasks():
+            if not task.session_id or task.status is TaskStatus.COMPLETED:
+                continue  # nothing to fix; skip to avoid duplicate PR comments
+            session = await self.devin.get_session(task.session_id)
+            await self._apply(task, session)
+            checked += 1
+        return checked
+
     # -- core ---------------------------------------------------------------
     async def poll_once(self) -> int:
         """Poll all active tasks once. Returns how many reached a terminal state.

@@ -137,6 +137,13 @@ def build_app() -> FastAPI:
         n = await tracker.poll_once()
         return {"reached_terminal": n}
 
+    @app.post("/reconcile")
+    async def reconcile():
+        """Re-check every task that has a session id against Devin, repairing
+        any recorded during downtime or under an earlier parser."""
+        n = await tracker.reconcile_all()
+        return {"reconciled": n}
+
     @app.get("/status")
     async def status():
         return {"tasks": task_rows(store)}

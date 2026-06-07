@@ -273,12 +273,51 @@ class DevinV3Client:
         if max_acu_limit is not None:
             body["max_acu_limit"] = max_acu_limit
         url = f"{self._base}/v3/organizations/{self._org}/sessions"
-        resp = await self._client.post(url, json=body)
-        resp.raise_for_status()
-        data = resp.json()
+        # A unique tag lets us recover the session if the gateway times out on
+        # the create call (the session is often provisioned server-side anyway).
+        marker = next((t for t in tags if t.startswith("sentinel-issue-")), None)
+        try:
+            resp = await self._client.post(url, json=body)
+            resp.raise_for_status()
+            data = resp.json()
+        except (httpx.HTTPStatusError, httpx.TimeoutException) as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status in (502, 503, 504) or isinstance(exc, httpx.TimeoutException):
+                recovered = await self._recover_session(marker)
+                if recovered:
+                    log.info("recovered session after gateway error", extra={
+                        "ctx_session_id": recovered.get("session_id")})
+                    return recovered
+            raise
         log.info("created devin v3 session", extra={
             "ctx_session_id": data.get("session_id")})
         return data  # already has session_id + url
+
+    async def _recover_session(self, marker: Optional[str], attempts: int = 3) -> Optional[dict]:
+        """Best-effort: find a recently-created session carrying `marker` in its
+        tags. Used when create returned a gateway timeout but the session may
+        still exist. Returns None (caller re-raises) if we can't find it."""
+        if not marker:
+            return None
+        url = f"{self._base}/v3/organizations/{self._org}/sessions"
+        for i in range(attempts):
+            await asyncio.sleep(5 * i)  # give Devin a moment to register it
+            try:
+                r = await self._client.get(url, params={"limit": 30})
+                if r.status_code != 200:
+                    continue
+                payload = r.json()
+            except Exception:  # noqa: BLE001 - recovery is best-effort
+                continue
+            sessions = payload
+            if isinstance(payload, dict):
+                sessions = (payload.get("sessions") or payload.get("data") or [])
+            if not isinstance(sessions, list):
+                continue
+            for s in sessions:
+                if isinstance(s, dict) and marker in (s.get("tags") or []):
+                    return {"session_id": s.get("session_id"), "url": s.get("url")}
+        return None
 
     async def get_session(self, session_id: str) -> DevinSession:
         prefixes = [self._get_prefix] if self._get_prefix else ["v3beta1", "v3"]
@@ -314,7 +353,10 @@ def _normalise_v3(data: dict) -> dict:
         if isinstance(first, str):
             out["pull_request"] = {"url": first}
         elif isinstance(first, dict):
-            out["pull_request"] = {"url": first.get("url") or first.get("html_url")}
+            # v3 uses `pr_url`; tolerate `url`/`html_url` too.
+            out["pull_request"] = {
+                "url": first.get("pr_url") or first.get("url") or first.get("html_url")
+            }
     return out
 
 

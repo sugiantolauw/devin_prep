@@ -90,7 +90,8 @@ class Orchestrator:
             created = await self.devin.create_session(
                 prompt,
                 title=f"Remediate #{number}: {title}"[:120],
-                tags=["sentinel", f"severity:{severity}", f"category:{category}"],
+                tags=["sentinel", f"sentinel-issue-{number}",
+                      f"severity:{severity}", f"category:{category}"],
                 structured_output_schema=STRUCTURED_OUTPUT_SCHEMA,
                 max_acu_limit=self.max_acu_limit,
             )
