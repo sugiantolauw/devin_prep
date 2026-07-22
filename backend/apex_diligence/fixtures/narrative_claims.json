@@ -1,0 +1,72 @@
+[
+  {
+    "claim_id": "c1",
+    "source": "FY2023-AppendixB",
+    "topic": "leadership",
+    "entity": "NZ",
+    "text": "Permanent NZ GM (Mr. James O'Connor) appointed effective 1 January 2023; the Board considers the leadership transition closed and states no further changes to the NZ executive team are anticipated in the FY2023 horizon."
+  },
+  {
+    "claim_id": "c2",
+    "source": "FY2023-AppendixB",
+    "topic": "customer_concentration",
+    "entity": "NZ",
+    "text": "Approximately one third of NZ FY2022 channel revenue was delivered through a single reseller (Security Tech Inc.); diversification of the NZ customer base is a stated FY2023 priority."
+  },
+  {
+    "claim_id": "c3",
+    "source": "FY2023",
+    "topic": "leadership",
+    "entity": "NZ",
+    "text": "NZ stabilised under new permanent leadership; all senior NZ executive roles are now permanently filled and the Board considers NZ leadership stability to be restored."
+  },
+  {
+    "claim_id": "c4",
+    "source": "FY2023",
+    "topic": "reliance",
+    "entity": "NZ",
+    "text": "Channel partnership with Security Tech Inc. continued to be the single largest revenue driver; the Board notes the Group's reliance on this counterparty and has requested a diversification plan in FY2024."
+  },
+  {
+    "claim_id": "c5",
+    "source": "FY2023",
+    "topic": "performance",
+    "entity": "Group",
+    "text": "Group revenue grew ~7% year-on-year; EBITDA margin compressed slightly versus FY2022, reflecting continued input-cost inflation partially offset by H2 pricing actions."
+  },
+  {
+    "claim_id": "c6",
+    "source": "FY2024",
+    "topic": "leadership",
+    "entity": "NZ",
+    "text": "NZ management instability evidenced by 3 GM changes in 18 months, two critical vacancies (Sales Director; Supply Lead) filled by interim resources, and elevated attrition in mid-management."
+  },
+  {
+    "claim_id": "c7",
+    "source": "FY2024",
+    "topic": "restructuring",
+    "entity": "AU",
+    "text": "AU executed a salary-only restructuring in Q4 — a one-off in September with a sustained run-rate reduction from October — supporting EBITDA expansion."
+  },
+  {
+    "claim_id": "c8",
+    "source": "FY2024",
+    "topic": "promo",
+    "entity": "Group",
+    "text": "A pronounced revenue step-up in May 2024 followed the Smart Security campaign launch with reseller Security Tech Inc. (stronger in AU; modest in NZ); this was limited in duration, with the revenue run-rate reducing to normal once the promotional period ended."
+  },
+  {
+    "claim_id": "c9",
+    "source": "FY2024",
+    "topic": "margin",
+    "entity": "NZ",
+    "text": "NZ shows an EBITDA decline on slightly higher structural cost ratios and execution slippage linked to leadership churn."
+  },
+  {
+    "claim_id": "c10",
+    "source": "FY2024",
+    "topic": "outlook",
+    "entity": "NZ",
+    "text": "NZ EBITDA-margin recovery is targeted at +120 to +180 bps by year-end if remediation milestones are achieved."
+  }
+]
