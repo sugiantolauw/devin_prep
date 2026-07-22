@@ -52,6 +52,21 @@ A grounded statement about financial performance, a trend, an anomaly, or a stru
 shift, each tied to specific figures from the Evidence Pack.
 _Avoid_: finding, note, comment
 
+**Finding**:
+The single first-class output object. It bundles a `category`, an `entity`/scope, a
+grounded Observation (with cited figures), its `evidence` (numeric references plus the
+Board-Paper quotes it reconciles), one or more Management Questions, and a `materiality`.
+Categories are a fixed set: Profitability/Margin, Growth/Trend, Normalisation,
+Narrative-vs-Data Contradiction, Concentration/Dependency, Data Quality/Verifiability,
+Seasonality/Cost-structure.
+_Avoid_: insight, item, result, record
+
+**Materiality**:
+The priority of a Finding — High, Medium, or Low. Anchored to computed dollar impact
+wherever one exists (e.g. the Sep-2024 one-off's EBITDA swing); otherwise a reasoned
+qualitative judgement. Drives the ranked "Key diligence findings" ordering.
+_Avoid_: severity, priority, importance, weight
+
 **Management Question**:
 A specific, evidence-grounded question a diligence analyst would put to company
 management, arising from an Observation.
