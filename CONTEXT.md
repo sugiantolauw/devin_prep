@@ -109,6 +109,10 @@ _Avoid_: matching, linking, correlation
 
 **Normalisation**:
 An adjustment to reported financials to remove one-off or non-recurring effects so the
-underlying run-rate is visible. Known candidates: the one-off Sep-2024 AU restructuring
-cost, and the temporary May-2024 Smart Security revenue spike.
+underlying run-rate is visible. Confirmed candidates (verified in the data): the one-off
+Sep-2024 AU restructuring cost (~505k extra in one month), and the non-recurring May-2024
+promo — a **whole-basket, single-month revenue spike** (AU total revenue ~13.2M vs an
+~11M run-rate, every product line up, fully reverting in June), removed at gross margin.
+The Smart Home Devices Q4 ramp is **separate secular growth, not part of the promo** and is
+not normalised out.
 _Avoid_: adjustment, add-back (add-back is one *type* of normalisation), restatement

@@ -23,15 +23,20 @@ explicit: "one-off Sep; sustained run-rate reduction from Oct."
 - **Neutralised by:** both-sides reconciliation (ADR-0003); bridge notes the reset, does
   not adjust it out (ADR-0006).
 
-## 3. Narrative vs. numbers — trust neither blindly
-The FY2024 paper says the May Smart Security revenue spike "reduced to normal once the
-promo ended." The data *partly* agrees — a May–Jun bump reverts toward ~790k — **but Smart
-Home Devices then ramps hard in Q4 (to ~1.9M in Dec) for unrelated reasons.** Naively
-"normalising out all above-baseline Smart Home revenue" over-adjusts.
-- **Anchor:** Smart Home Devices 2024 (Group): Apr 625k, May 901k, Jun 887k, Jul 792k …
-  Oct 1.14M, Nov 1.44M, Dec 1.91M.
-- **Neutralised by:** anomaly detection + narrative reconciliation must both support the
-  adjustment, and only the promo-attributable portion is removed (ADR-0003/0006).
+## 3. Narrative vs. numbers — trust neither blindly (and locate the promo correctly)
+The FY2024 paper ties the May revenue step-up to the "Smart Security" launch, which reads
+as a Smart-Home story. **It isn't.** Cross-referencing the data: the May-2024 promo is a
+**whole-basket, single-month spike** — AU total revenue 13.19M vs an ~11M run-rate, with
+*every* product line up (Laptops +30%, Mobile +22%, Smart Home +46%, TVs +16%,
+Accessories +13%) and a full reversion in June (11.05M). Meanwhile **Smart Home Devices
+ramps hard in Q4 (to ~1.43M AU in Dec) as genuine secular growth, unrelated to the promo.**
+Two failure modes: (a) attributing the promo to Smart Home only, understating it; (b)
+"normalising out all above-baseline Smart Home revenue," which strips real Q4 growth.
+- **Anchor:** AU total revenue 2024 by month (M): Jan 10.65, Apr 10.76, **May 13.19**,
+  Jun 11.05, Dec 11.61. Promo uplift ≈ 2.28M (AU), ~0.78M (NZ), computed vs adjacent months.
+- **Neutralised by:** the transient-spike detector runs on *total* entity revenue (not one
+  product); only the single-month uplift is removed, at gross margin; the Q4 ramp is
+  untouched (ADR-0003/0006).
 
 ## 4. The unverifiable figure (honesty trap)
 Appendix B claims ~one third of NZ revenue runs through one reseller (Security Tech Inc.).
