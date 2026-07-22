@@ -33,6 +33,13 @@ candidates) handed to the LLM. The LLM narrates from this pack; it never compute
 numbers itself.
 _Avoid_: context, prompt data, facts blob
 
+**Guardrail** (numeric guardrail):
+A deterministic post-check that extracts every number in an LLM-generated Observation or
+Management Question and verifies it exists in the Evidence Pack within rounding tolerance.
+Any unmatched number causes the item to be rejected or flagged. Numbers are emitted by the
+LLM in canonical form to keep the check reliable.
+_Avoid_: validator, checker, filter
+
 **Observation**:
 A grounded statement about financial performance, a trend, an anomaly, or a structural
 shift, each tied to specific figures from the Evidence Pack.
