@@ -50,6 +50,18 @@ A specific, evidence-grounded question a diligence analyst would put to company
 management, arising from an Observation.
 _Avoid_: query, ask, follow-up
 
+**Anomaly**:
+A point or stretch in a series that departs materially from its seasonal/run-rate
+baseline — an outlier, a structural break (a sustained level shift), or a spike. Detected
+deterministically in Python; it is a *candidate* signal, not yet an explained finding.
+_Avoid_: outlier (that is only one kind), blip, deviation
+
+**Reconciliation**:
+The LLM step that matches a detected numeric Anomaly to a Board-Paper explanation, and
+flags where the data and the narrative — or two Board Papers — disagree. A Normalisation
+is only surfaced when a numeric Anomaly and a narrative statement both support it.
+_Avoid_: matching, linking, correlation
+
 **Normalisation**:
 An adjustment to reported financials to remove one-off or non-recurring effects so the
 underlying run-rate is visible. Known candidates: the one-off Sep-2024 AU restructuring
