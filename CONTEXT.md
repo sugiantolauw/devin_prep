@@ -40,6 +40,13 @@ Any unmatched number causes the item to be rejected or flagged. Numbers are emit
 LLM in canonical form to keep the check reliable.
 _Avoid_: validator, checker, filter
 
+**Customer Concentration**:
+The share of an entity's revenue dependent on a single customer/reseller. The FY2023
+Board Paper states ~one third of NZ FY2022 channel revenue ran through one reseller
+(Security Tech Inc.). This is a narrative claim that the structured data cannot verify —
+the P&L breaks revenue down by product line, not by customer.
+_Avoid_: customer risk, key account exposure
+
 **Observation**:
 A grounded statement about financial performance, a trend, an anomaly, or a structural
 shift, each tied to specific figures from the Evidence Pack.
