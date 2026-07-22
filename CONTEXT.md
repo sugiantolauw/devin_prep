@@ -57,6 +57,29 @@ A specific, evidence-grounded question a diligence analyst would put to company
 management, arising from an Observation.
 _Avoid_: query, ask, follow-up
 
+**Reported EBITDA**:
+EBITDA as it appears in the source data: the sum of all signed line-item amounts for an
+entity over a period (revenue positive, costs negative). Equivalently Gross Profit + Opex.
+_Avoid_: actual EBITDA, raw EBITDA, statutory EBITDA
+
+**Normalised EBITDA**:
+Reported EBITDA adjusted to remove one-off and non-recurring effects, so the underlying
+run-rate earnings are visible. Known adjustments: add back the one-off Sep-2024 AU
+restructuring cost; remove the non-recurring portion of the May-2024 Smart Security promo
+revenue. The sustained Oct-2024 salary run-rate reset is noted, not adjusted out.
+_Avoid_: adjusted EBITDA (acceptable synonym), underlying EBITDA, pro-forma EBITDA
+
+**EBITDA Bridge**:
+The waterfall from Reported EBITDA to Normalised EBITDA, showing each normalisation
+adjustment as a discrete step. Every step's figure is computed in Python and passes the
+Guardrail.
+_Avoid_: walk, reconciliation (that term is reserved for the numeric↔narrative step)
+
+**EBITDA Margin**:
+EBITDA divided by Revenue for the same entity and period. The headline diligence signal:
+AU margin expands across FY2021–FY2024 while NZ margin compresses.
+_Avoid_: profitability ratio, return
+
 **Anomaly**:
 A point or stretch in a series that departs materially from its seasonal/run-rate
 baseline — an outlier, a structural break (a sustained level shift), or a spike. Detected
