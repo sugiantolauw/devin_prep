@@ -1,3 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / frontend
 node_modules/
-*.pdf
+frontend/dist/
+
+# Cached LLM output (regenerable)
+backend/.cache/
+
+# Render artifacts (slides → pdf/jpg for QA); data PDFs are committed
+deliverables/*.pdf
 slide-*.jpg
