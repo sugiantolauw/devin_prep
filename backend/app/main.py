@@ -1,12 +1,13 @@
-"""FastAPI application entry point.
+"""FastAPI application (ADR-0004).
 
 Deterministic metrics are computed live; LLM-generated findings are cached to disk with an
-explicit regenerate action (ADR-0004). Endpoints are added in Phase 7; this module starts as
-a health-checkable skeleton.
+explicit regenerate action. In dev the Vite server proxies /api here.
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from . import service
 
 app = FastAPI(
     title="Apex Diligence API",
@@ -14,8 +15,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# In dev the Vite server proxies /api, so CORS is not strictly needed; permissive here keeps
-# a direct browser call working too.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -27,3 +26,33 @@ app.add_middleware(
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/metrics")
+def metrics() -> dict:
+    """All deterministic analytical views, computed live from the CSV."""
+    return service.get_metrics()
+
+
+@app.get("/api/bridges")
+def bridges() -> list[dict]:
+    """Reported -> Normalised EBITDA bridges (AU, NZ)."""
+    return service.get_bridges()
+
+
+@app.get("/api/evidence")
+def evidence() -> dict:
+    """Material anomalies + normalisation items (the numeric side of the Evidence Pack)."""
+    return service.get_evidence()
+
+
+@app.get("/api/findings")
+def findings() -> dict:
+    """Ranked, guardrail-checked diligence findings (cached)."""
+    return service.get_findings_payload()
+
+
+@app.post("/api/findings/regenerate")
+def regenerate_findings() -> dict:
+    """Re-run reconciliation (the LLM step) and refresh the cache."""
+    return service.get_findings_payload(regenerate=True)
