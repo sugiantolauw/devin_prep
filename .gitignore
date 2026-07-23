@@ -1,12 +1,18 @@
+# Python
 __pycache__/
-*.py[cod]
-*.egg-info/
+*.pyc
 .venv/
-venv/
-.env
-*.db
-*.sqlite3
 .pytest_cache/
-.DS_Store
-data/sentinel.db
-data/*.db
+.ruff_cache/
+*.egg-info/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# Cached LLM output (regenerable)
+backend/.cache/
+
+# Render artifacts (slides → pdf/jpg for QA); data PDFs are committed
+deliverables/*.pdf
+slide-*.jpg
